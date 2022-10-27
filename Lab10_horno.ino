@@ -15,8 +15,8 @@ DallasTemperature DS18B20(&oneWire);
 float T; // temperatura en Celsius
 
 //reles
-const int Foco = 18;
-const int Vent = 21;
+const int Foco = 21;
+const int Vent = 18;
 
 //SetPoint
 int setPoint = 22;
@@ -37,6 +37,8 @@ void setup() {
   DS18B20.begin();      // initializando el sensor DS18B20
   pinMode(Vent,OUTPUT);
   pinMode(Foco,OUTPUT);
+  digitalWrite(Foco, LOW);
+  digitalWrite(Vent, LOW);
 
   // Iniciamos  SPIFFS
   if (!SPIFFS.begin())
@@ -86,21 +88,21 @@ void setup() {
 
   //Encendido y apagado foco
   server.on("/FocoEstado0", HTTP_GET, [](AsyncWebServerRequest *request){
-    Serial.println("Estado foco: apagado\t");
-    digitalWrite(Foco, LOW);
-  });
-  server.on("/FocoEstado1", HTTP_GET, [](AsyncWebServerRequest *request){
     Serial.println("Estado foco: encendido\t");
     digitalWrite(Foco, HIGH);
   });
+  server.on("/FocoEstado1", HTTP_GET, [](AsyncWebServerRequest *request){
+    Serial.println("Estado foco: apagado\t");
+    digitalWrite(Foco, LOW);
+  });
   //Encendido y apagado foco
   server.on("/VentiladorEstado0", HTTP_GET, [](AsyncWebServerRequest *request){
-    Serial.println("Estado ventilador: apagado\t");
-    digitalWrite(Vent, LOW);
-  });
-  server.on("/VentiladorEstado1", HTTP_GET, [](AsyncWebServerRequest *request){
     Serial.println("Estado ventilador: encendido\t");
     digitalWrite(Vent, HIGH);
+  });
+  server.on("/VentiladorEstado1", HTTP_GET, [](AsyncWebServerRequest *request){
+    Serial.println("Estado ventilador: apagado\t");
+    digitalWrite(Vent, LOW);
   });
 
   //Segunda pestaña
@@ -109,6 +111,20 @@ void setup() {
     Serial.print("Set_point:\t");
     Serial.println(pwmValue);
     setPoint = pwmValue.toInt();
+    if (T < setPoint) {
+      digitalWrite(Foco, HIGH);
+      digitalWrite(Vent, LOW);
+    }
+    else {
+      digitalWrite(Foco, LOW);
+      digitalWrite(Vent, HIGH);
+    }
+    request->send(SPIFFS, "/serial.html", String(), false, datos);
+  });
+
+  //Segunda pestaña
+  server.on("/SensorLM35", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", String(T).c_str());
   });
   
   server.begin();
@@ -134,17 +150,6 @@ void loop() {
   T = DS18B20.getTempCByIndex(0);  // lectura de temperatura en °C
   Serial.print("Temperature: ");
   Serial.println(T);                // imprimiendo temperatura en °C
-
-  if (T < setPoint)
-  {
-    digitalWrite(Foco, HIGH);
-    digitalWrite(Vent, LOW);
-  }
-  else
-  {
-    digitalWrite(Foco, LOW);
-    digitalWrite(Vent, HIGH);
-  }
-
+  
   delay(500);
 }

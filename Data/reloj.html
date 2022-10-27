@@ -42,7 +42,6 @@
       <div id="seconds">00</div>
     </div>
     <div id="contenedor_horario1" style="display: inline-grid; margin-right: 20px; margin-bottom: 50px;">
-      <form action="/HORARIO1" method="post">
         <label for="horaEncendido1">Hora de encendido</label><br>
         <input type="number" id="horaEncendido1" name="horaEncendido1" min="0" max="23" value="18">&nbsp:
         <input type="number" id="minutoEncendido1" name="minutoEncendido1" min="0" max="60" value="30">
@@ -50,11 +49,10 @@
         <input type="number" id="horaApagado1" name="horaApagado1" min="0" max="23" value="7">&nbsp:
         <input type="number" id="minutoApagado1" name="minutoApagado1" min="0" max="59" value="30">
         <input type="number" id="flagHorario1" name="flagHorario1" min="0" max="10" value="1" style="display: none;"><br>
-        <br><button id="establecerHorario1" type="submit" value="Submit" onclick="horario1()">Establecer horario ventilador</button>
-      </form>
+        <br><button id="establecerHorario1" value="Submit" onclick="horario1()">Establecer horario ventilador</button>
     </div>
     <div id="contenedor_horario2" style="display: inline-grid; margin-left: 20px; margin-bottom: 60px;">
-      <form action="/HORARIO2" method="post">
+      
         <label for="horaEncendido2">Hora de encendido</label><br>
         <input type="number" id="horaEncendido2" name="horaEncendido2" min="0" max="23" value="18">&nbsp:
         <input type="number" id="minutoEncendido2" name="minutoEncendido2" min="0" max="60" value="30">
@@ -62,8 +60,8 @@
         <input type="number" id="horaApagado2" name="horaApagado2" min="0" max="23" value="7">&nbsp:
         <input type="number" id="minutoApagado2" name="minutoApagado2" min="0" max="59" value="30">
         <input type="number" id="flagHorario2" name="flagHorario2" min="0" max="10" value="1" style="display: none;"><br>
-        <br><button id="establecerHorario2" type="submit" value="Submit" onclick="horario2()">Establecer horario foco</button>
-      </form>
+        <br><button id="establecerHorario2" value="Submit" onclick="horario2()">Establecer horario foco</button>
+
     </div>
     
     <!--Tabla de información de la conexión-->
@@ -151,55 +149,151 @@
     <br><br><br><br>
 
     <script>
+
       var hour = document.getElementById("hour");
       var minute = document.getElementById("minute");
       var seconds = document.getElementById("seconds");
 
-      var clock = setInterval(
-          function time(){
-            var date_now = new Date();
-            var hr = date_now.getHours();
-            var min = date_now.getMinutes();
-            var sec = date_now.getSeconds();
-            
-            if(hr < 10){
-                hr = "0" + hr;
-            } 
-            if(min < 10){
-                min = "0" + min;
-            } 
-            if(sec < 10){
-                sec = "0" + sec;
-            }
+      var clock = setInterval(function time() {
+        var date_now = new Date();
+        var hr = date_now.getHours();
+        var min = date_now.getMinutes();
+        var sec = date_now.getSeconds();
 
-            hour.textContent = hr;
-            minute.textContent = min;
-            seconds.textContent = sec;
+        if (hr < 10) {
+          hr = "0" + hr;
+        }
+        if (min < 10) {
+          min = "0" + min;
+        }
+        if (sec < 10) {
+          sec = "0" + sec;
+        }
 
+        hour.textContent = hr;
+        minute.textContent = min;
+        seconds.textContent = sec;
+      }, 1000);
 
+      function horario1() {
+        // Recolectamos datos
+        var h1 = document.getElementById("horaEncendido1").value;
+        var m1 = document.getElementById("minutoEncendido1").value;
+        var h2 = document.getElementById("horaApagado1").value;
+        var m2 = document.getElementById("minutoApagado1").value;
 
-          },1000
-      );
+        //Trabajando con el tiempo actual
+        var tiempoActual = new Date();
+        var milis1 =
+          new Date(
+            tiempoActual.getFullYear(),
+            tiempoActual.getMonth(),
+            tiempoActual.getDate(),
+            h1,
+            m1,
+            0,
+            0
+          ) - tiempoActual;
+        var milis2 =
+          new Date(
+            tiempoActual.getFullYear(),
+            tiempoActual.getMonth(),
+            tiempoActual.getDate(),
+            h2,
+            m2,
+            0,
+            0
+          ) - tiempoActual;
+          console.log(milis1);
+          console.log(milis2);
+          
+        if (milis1 < 0) {
+          milis1 += 86400000; //Si la hora establecida de inicio ya pasó, se aplica desde el siguiente dia (86400000 = 24h)
+        }
+        if (milis2 < 0) {
+          milis2 = 86400000; //Si la hora establecida de apagdo ya pasó, se aplica desde el siguiente dia (86400000 = 24h)
+        }
+        if (milis1 < milis2) {
+          milis2 += 86400000;
+        }
 
-      var auxHorario1 = true;
-      function horario1(){
-          if(auxHorario1){
-              document.getElementById('#flagHorario1').value = 0;
-              auxHorario1 = false;
-          } else {
-              document.getElementById('#flagHorario1').value = 1;
-              auxHorario1 = true;
-          }
+        //Establecemos los temporizadores para mandar señales al ESP32 en el momento en el que el foco deba cambiar de estado
+        setInterval(function () {
+          var xhttp = new XMLHttpRequest();
+          xhttp.open("GET", "/VentiladorEstado1", true);
+          xhttp.send();
+          console.log("temp1");
+        }, milis1);
+
+        setInterval(function () {
+          var xhttp = new XMLHttpRequest();
+          xhttp.open("GET", "/VentiladorEstado0", true);
+          xhttp.send();
+          console.log("temp2");
+        }, milis2);
+
+        console.log("Se establecieron los temporizadores");
+        alert(`Se estableció el horario correctamente :D\nEncendido: ${h1}:${m1}\nApagado: ${h2}:${m2}`);
       }
-      var auxHorario2 = true;
-      function horario2(){
-          if(auxHorario2){
-              document.getElementById('#flagHorario2').value = 0;
-              auxHorario2 = false;
-          } else {
-              document.getElementById('#flagHorario2').value = 1;
-              auxHorario2 = true;
-          }
+      function horario2() {
+        // Recolectamos datos
+        var h1 = document.getElementById("horaEncendido2").value;
+        var m1 = document.getElementById("minutoEncendido2").value;
+        var h2 = document.getElementById("horaApagado2").value;
+        var m2 = document.getElementById("minutoApagado2").value;
+
+        //Trabajando con el tiempo actual
+        var tiempoActual = new Date();
+        var milis1 =
+          new Date(
+            tiempoActual.getFullYear(),
+            tiempoActual.getMonth(),
+            tiempoActual.getDate(),
+            h1,
+            m1,
+            0,
+            0
+          ) - tiempoActual;
+        var milis2 =
+          new Date(
+            tiempoActual.getFullYear(),
+            tiempoActual.getMonth(),
+            tiempoActual.getDate(),
+            h2,
+            m2,
+            0,
+            0
+          ) - tiempoActual;
+          console.log(milis1);
+          console.log(milis2);
+          
+        if (milis1 < 0) {
+          milis1 += 86400000; //Si la hora establecida de inicio ya pasó, se aplica desde el siguiente dia (86400000 = 24h)
+        }
+        if (milis2 < 0) {
+          milis2 = 86400000; //Si la hora establecida de apagdo ya pasó, se aplica desde el siguiente dia (86400000 = 24h)
+        }
+        if (milis1 < milis2) {
+          milis2 += 86400000;
+        }
+
+        //Establecemos los temporizadores para mandar señales al ESP32 en el momento en el que el foco deba cambiar de estado
+        setInterval(function () {
+          var xhttp = new XMLHttpRequest();
+          xhttp.open("GET", "/FocoEstado1", true);
+          xhttp.send();
+          console.log("temp1");
+        }, milis1);
+
+        setInterval(function () {
+          var xhttp = new XMLHttpRequest();
+          xhttp.open("GET", "/FocoEstado0", true);
+          xhttp.send();
+          console.log("temp2");
+        }, milis2);
+
+        console.log("Se establecieron los temporizadores - Focos");
+        alert(`Se estableció el horario correctamente :D\nEncendido: ${h1}:${m1}\nApagado: ${h2}:${m2}`);
       }
     </script>
 </body>

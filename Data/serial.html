@@ -7,7 +7,6 @@
     <link rel="icon" type="image/png" href="icon.png">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="index.css">
-    <script src="https://code.highcharts.com/highcharts.js"></script>
   </head>
   <body>
     <!--Titulo y conexión WiFi-->
@@ -35,30 +34,24 @@
     <div style="height: 25px;"></div>
 
     <!--Contenido-->
-    <div style="display:grid; gap: 40px;">
+    <div>
       <div>
         <center>
           <h2>Control del Set_Point,</h2>
           <form action="/SLIDER" method="post">
             Slider:<br>
-            <input type="range" id="pwmInput" name="pwmValue" min="0" max="1023" value="500" onchange="updateTextInput(this.value, 'pwmInput', 'textInput')" >
-            <input type="number" id="textInput" onchange="updateTextInput(this.value, 'pwmInput', 'textInput')" value="500" style="width:50px">
+            <input type="range" id="pwmInput" name="pwmValue" min="0" max="30" value="15" onchange="updateTextInput(this.value, 'pwmInput', 'textInput')" >
+            <input type="number" id="textInput" onchange="updateTextInput(this.value, 'pwmInput', 'textInput')" value="15" style="width:50px">
             <br><button type="submit" value="Submit">Enviar</button>
           </form>
         </center>
       </div>
-      <!--Gráfica-->
-      <center><div style="min-width: 310px; max-width: 800px;">
-        <div id="sensor-LM35" class="container"></div>
-      </div></center>
-      <div style="display: grid; grid-template-columns: 45% 45%; gap: 10%; margin: 0px 10vw; margin-bottom: 50px;">
-        <div style="display: flex; justify-content: center; align-items: center;">
-            <img id="imagen-foco" src="https://raw.githubusercontent.com/MicaelaGordillo/images_IoT/main/intensidad_foco/intensidad5.png" alt="foco" width="60%">
-        </div>
-        <div style="display: flex; justify-content: center; align-items: center;">
-            <img id="imagen-ventilador" src="https://raw.githubusercontent.com/MicaelaGordillo/images_IoT/main/ventilador/ventilador.jpg" alt="ventilador" width="60%">
-        </div>
-      </div>
+      <script>  
+        function updateTextInput(val, pwmInput, textInput) {
+          document.getElementById(pwmInput).value = val; 
+          document.getElementById(textInput).value = val; 
+        }
+      </script>
     </div>
     
     <!--Tabla de información de la conexión-->
@@ -144,55 +137,5 @@
     </div>
     <!-- Espacios -->
     <br><br><br><br>
-    <script>
-      /*Gráfica para el sensor LM35*/
-      var sensorLM35 = new Highcharts.Chart({
-          chart:{ 
-              renderTo:'sensor-LM35' 
-          },
-          title: { 
-              text: 'Sensor LM35' 
-          },
-          series: [{
-            showInLegend: false,
-            data: []
-          }],
-          plotOptions: {
-            line: { animation: false,
-              dataLabels: { enabled: true }
-            },
-            series: { color: '#18009c' }
-          },
-          xAxis: {
-            type: 'datetime',
-            dateTimeLabelFormats: { second:'%S' }
-          },
-          yAxis: {
-            title: { text: 'Datos del Sensor LM35' }
-          },
-          credits: { enabled: false }
-      });
-      /*Función para pedir el valor del sensor LM35 cada 1 segundo*/
-      setInterval(function () {
-          var xhttp = new XMLHttpRequest();
-          xhttp.onreadystatechange = function() {
-              if (this.readyState == 4 && this.status == 200) {
-                  var x = (new Date()).getTime(), y = parseFloat(this.responseText);
-                  if(sensorLM35.series[0].data.length > 40) {
-                      sensorLM35.series[0].addPoint([x, y], true, true, true);
-                  } else {
-                      sensorLM35.series[0].addPoint([x, y], true, false, true);
-                  }
-              }
-          };
-          xhttp.open("GET", "/SensorLM35", true);
-          xhttp.send();
-      }, 1000 );
-      
-      function updateTextInput(val, pwmInput, textInput) {
-        document.getElementById(pwmInput).value = val; 
-        document.getElementById(textInput).value = val; 
-      }
-    </script>
 </body>
 </html>
