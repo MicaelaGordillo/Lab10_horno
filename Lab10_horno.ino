@@ -23,6 +23,9 @@ int setPoint = 22;
 int Sup;
 int Inf;
 
+
+String pwmValue;
+
 int page = 0;
 AsyncWebServer server(80);
 
@@ -98,6 +101,14 @@ void setup() {
   server.on("/VentiladorEstado1", HTTP_GET, [](AsyncWebServerRequest *request){
     Serial.println("Estado ventilador: encendido\t");
     digitalWrite(Vent, HIGH);
+  });
+
+  //Segunda pestaña
+  server.on("/SLIDER", HTTP_POST, [](AsyncWebServerRequest *request){
+    pwmValue = request->arg("pwmValue");
+    Serial.print("Set_point:\t");
+    Serial.println(pwmValue);
+    setPoint = pwmValue.toInt();
   });
   
   server.begin();
