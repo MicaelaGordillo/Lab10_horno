@@ -217,6 +217,39 @@ table {
   color: #009879;
 }
 
+/*--------------------------------------------------------------------------------------------------*/
+/*Menu superior*/
+.menu_superior {
+    display: block;
+}
+.menu_superior ul {
+    list-style: none;
+    overflow: hidden;
+    margin: 0 !important;
+    padding-left: 0;
+}
+.menu_superior ul li a {
+    display: block;
+    padding-top: 15px;
+    padding-left: 25px;
+    padding-right: 25px;
+    padding-bottom: 15px;
+    color: #034078;
+    font-family: 'Roboto', sans-serif;
+    font-weight: bold;
+    text-decoration: none;
+}
+.izquierda{
+    float: left; 
+}
+.menu_superior ul li a:hover, .open:hover {
+    background: #034078;
+    color: white;
+}
+hr {
+    margin-top: 0;
+}
+/*--------------------------------------------------------------------------------------------------*/
 /*Reloj digital*/
 .clock{
   width: 550px;

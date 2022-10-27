@@ -20,9 +20,74 @@
     </header>
     <div style="height: 120px;"></div>
 
+    <!--Menú de navegacion-->
+    <div class="menu_superior" style="margin: 0px 60px;">
+        <nav>
+            <ul>
+                <li class="izquierda"><a href="index.html">Control manual</a></li>
+                <li class="izquierda"><a href="serial.html">Modo control On/Off</a></li>
+                <li class="izquierda"><a href="reloj.html">Configuración de tiempo</a></li>
+            </ul>
+        </nav>
+        <hr>
+    </div>
+    <div style="height: 25px;"></div>
+
     <!--Contenido-->
-    <img src="https://raw.githubusercontent.com/MicaelaGordillo/images_IoT/main/ventilador/ventilador.jpg" alt="ventilador">
-    <img src="https://raw.githubusercontent.com/MicaelaGordillo/images_IoT/main/ventilador/fan-gif-27-blue-ventilator.webp" alt="ventilador">
+    <div style="display: grid; grid-template-columns: 45% 45%; gap: 10%; margin: 0px 10vw; margin-bottom: 50px;">
+        <div style="display: flex; justify-content: center; align-items: center;">
+            <img id="imagen-foco" src="https://raw.githubusercontent.com/MicaelaGordillo/images_IoT/main/intensidad_foco/intensidad5.png" alt="foco" width="50%">
+            <input id='switch-foco' type='image' src='http://esploradores.com/Practicas_html/apagar_300x88.png' style='display:block; margin:auto' width='40%' onclick="cambiarIconosFoco('estado-foco', 'imagen-foco', 'switch-foco', 'FocoEstado')">
+            <input type="range" style='display: none;' id="estado-foco" name="estado-foco" value=0>
+        </div>
+        <div style="display: flex; justify-content: center; align-items: center;">
+            <img id="imagen-ventilador" src="https://raw.githubusercontent.com/MicaelaGordillo/images_IoT/main/ventilador/ventilador.jpg" alt="ventilador" width="50%">
+            <input id='switch-ventilador' type='image' src='http://esploradores.com/Practicas_html/apagar_300x88.png' style='display:block; margin:auto' width='40%' onclick="cambiarIconosVentilador('estado-ventilador', 'imagen-ventilador', 'switch-ventilador', 'VentiladorEstado')">
+            <input type="range" style='display: none;' id="estado-ventilador" name="estado-ventilador" value=0>
+        </div>
+    </div>
+    <script>
+        /*Funcion que permite cambiar los iconos del foco*/
+        function cambiarIconosFoco(idValor, idImagen, idSwitch, ruta){
+            if (document.getElementById(idValor).value == 0){
+                document.getElementById(idImagen).src = 'https://raw.githubusercontent.com/MicaelaGordillo/images_IoT/main/intensidad_foco/intensidad1.png';
+                document.getElementById(idValor).value = 1;
+                document.getElementById(idSwitch).src ='http://esploradores.com/Practicas_html/encender_300x88.png';
+            } else {
+                document.getElementById(idImagen).src = 'https://raw.githubusercontent.com/MicaelaGordillo/images_IoT/main/intensidad_foco/intensidad5.png';
+                document.getElementById(idValor).value = 0;
+                document.getElementById(idSwitch).src ='http://esploradores.com/Practicas_html/apagar_300x88.png';
+            }
+            var xhttpCambio = new XMLHttpRequest();
+            xhttpCambio.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                console.log("todo bien");
+                }
+            };
+            xhttpCambio.open("GET", "/"+ruta+document.getElementById(idValor).value, true);
+            xhttpCambio.send();
+        }
+        /*Funcion que permite cambiar los iconos del ventilador*/
+        function cambiarIconosVentilador(idValor, idImagen, idSwitch, ruta){
+            if (document.getElementById(idValor).value == 0){
+                document.getElementById(idImagen).src = 'https://raw.githubusercontent.com/MicaelaGordillo/images_IoT/main/ventilador/fan-gif-27-blue-ventilator.webp';
+                document.getElementById(idValor).value = 1;
+                document.getElementById(idSwitch).src ='http://esploradores.com/Practicas_html/encender_300x88.png';
+            } else {
+                document.getElementById(idImagen).src = 'https://raw.githubusercontent.com/MicaelaGordillo/images_IoT/main/ventilador/ventilador.jpg';
+                document.getElementById(idValor).value = 0;
+                document.getElementById(idSwitch).src ='http://esploradores.com/Practicas_html/apagar_300x88.png';
+            }
+            var xhttpCambio = new XMLHttpRequest();
+            xhttpCambio.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                console.log("todo bien");
+                }
+            };
+            xhttpCambio.open("GET", "/"+ruta+document.getElementById(idValor).value, true);
+            xhttpCambio.send();
+        }
+    </script>
 
     <!--Tabla de información de la conexión-->
     <div>
@@ -107,7 +172,33 @@
     </div>
     <!-- Espacios -->
     <br><br><br><br>
-
-    <script src="index.js"></script>
+    <script>
+        /*Función para cambiar la imagen en base a la conexión WiFi*/
+        function actualizarPotencia(){
+            var valor = parseInt(document.getElementById("valorPotencia").innerText);
+            if (valor >= (-40)) {
+                document.getElementById("imgPotencia").src = "https://raw.githubusercontent.com/MicaelaGordillo/images_IoT/main/intensidad_wifi/wifi4.png";
+            } else if (valor <(-40) && valor >= (-50)) {
+                document.getElementById("imgPotencia").src = "https://raw.githubusercontent.com/MicaelaGordillo/images_IoT/main/intensidad_wifi/wifi3.png";
+            } else if (valor < (-50) && valor >= (-60)){
+                document.getElementById("imgPotencia").src = "https://raw.githubusercontent.com/MicaelaGordillo/images_IoT/main/intensidad_wifi/wifi2.png";
+            } else if (valor < (-60)){
+                document.getElementById("imgPotencia").src = "https://raw.githubusercontent.com/MicaelaGordillo/images_IoT/main/intensidad_wifi/wifi1.png";
+            }
+        }
+        /*Función para pedir el valor de la conexión WiFi - cada 10 segundos*/
+        setInterval(function ( ) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    document.getElementById("valorPotencia").innerText = this.responseText;
+                    document.getElementById("valorRSSI").innerText = this.responseText;
+                    actualizarPotencia();
+                }
+            };
+            xhttp.open("GET", "/RSSI", true);
+            xhttp.send();
+        }, 10000);
+    </script>
 </body>
 </html>

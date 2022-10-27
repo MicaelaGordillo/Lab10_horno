@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>LAB 9 | Lamp</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="index.css">
+  </head>
+  <body>
+    <!--Titulo y conexión WiFi-->
+    <header>
+      <img src="https://raw.githubusercontent.com/MicaelaGordillo/IOT_2/main/EjemploST_3/images/logo/myn.png" alt="logo">
+      <h1 style="z-index: 100; background-color:white;">LÁMPARA INTELIGENTE</h1>
+      <div id="contenedor" style="display: grid;position: absolute; top: 10px;right: 0; width: 200px;">
+        <img id="imgPotencia" src="" alt="">
+        <p id="valorPotencia">%RSSI%</p>
+      </div>
+    </header>
+    <div style="height: 120px;"></div>
+
+    <!--Menú de navegacion-->
+    <div class="menu_superior" style="margin: 0px 60px;">
+        <nav>
+            <ul>
+                <li class="izquierda"><a href="index.html">Control manual</a></li>
+                <li class="izquierda"><a href="serial.html">Modo control On/Off</a></li>
+                <li class="izquierda"><a href="reloj.html">Configuración de tiempo</a></li>
+            </ul>
+        </nav>
+        <hr>
+    </div>
+    <div style="height: 25px;"></div>
+
+    <!--Contenido-->
+    <div class="clock">
+      <div id="hour">00</div>
+      <span>:</span>
+      <div id="minute">00</div>
+      <span>:</span>
+      <div id="seconds">00</div>
+    </div>
+    <div id="contenedor_horario1" style="display: inline-grid; margin-right: 20px; margin-bottom: 50px;">
+      <form action="/HORARIO1" method="post">
+        <label for="horaEncendido1">Hora de encendido</label><br>
+        <input type="number" id="horaEncendido1" name="horaEncendido1" min="0" max="23" value="18">&nbsp:
+        <input type="number" id="minutoEncendido1" name="minutoEncendido1" min="0" max="60" value="30">
+        <br><label for="horaApagado1">Hora de apagado</label><br>
+        <input type="number" id="horaApagado1" name="horaApagado1" min="0" max="23" value="7">&nbsp:
+        <input type="number" id="minutoApagado1" name="minutoApagado1" min="0" max="59" value="30">
+        <input type="number" id="flagHorario1" name="flagHorario1" min="0" max="10" value="1" style="display: none;"><br>
+        <br><button id="establecerHorario1" type="submit" value="Submit" onclick="horario1()">Establecer horario ventilador</button>
+      </form>
+    </div>
+    <div id="contenedor_horario2" style="display: inline-grid; margin-left: 20px; margin-bottom: 60px;">
+      <form action="/HORARIO2" method="post">
+        <label for="horaEncendido2">Hora de encendido</label><br>
+        <input type="number" id="horaEncendido2" name="horaEncendido2" min="0" max="23" value="18">&nbsp:
+        <input type="number" id="minutoEncendido2" name="minutoEncendido2" min="0" max="60" value="30">
+        <br><label for="horaApagado">Hora de apagado</label><br>
+        <input type="number" id="horaApagado2" name="horaApagado2" min="0" max="23" value="7">&nbsp:
+        <input type="number" id="minutoApagado2" name="minutoApagado2" min="0" max="59" value="30">
+        <input type="number" id="flagHorario2" name="flagHorario2" min="0" max="10" value="1" style="display: none;"><br>
+        <br><button id="establecerHorario2" type="submit" value="Submit" onclick="horario2()">Establecer horario foco</button>
+      </form>
+    </div>
+    
+    <!--Tabla de información de la conexión-->
+    <div>
+        <center>
+        <h1>Información de la conexión</h1> 
+        <div style='width: 90vw; transition: 1s;' class='ampliacion'>
+        <table class="styled-table">
+          <thead>
+          <tr><th style=' padding: 20px;'>IP Local</th><th style=' padding: 20px; '>Host Name</th><th style=' padding: 20px; '>Status</th><th style=' padding: 20px; '>SSID</th><th style=' padding: 20px; '>PSK</th><th style=' padding: 20px; '>BSSID</th><th style=' padding: 20px; '>RSSI</th></tr>
+          </thead>
+          <tr>
+          <td style='padding: 20px;text-align: center;'class='changecolor'>
+            %IP%  
+          </td>
+          <td style='padding: 20px;text-align: center;'class='changecolor'>
+            %HOSTNAME%
+          </td>
+          <td style='padding: 20px;text-align: center;'class='changecolor'>
+            %STATUS%
+          </td>
+          <td style='padding: 20px;text-align: center;'class='changecolor'>
+            %SSID%
+          </td>
+          <td style='padding: 20px;text-align: center;'class='changecolor'>
+            %PSK% 
+          </td>
+          <td style='padding: 20px;text-align: center;'class='changecolor'>
+            %BSSID%  
+          </td>
+          <td style='padding: 20px;text-align: center;'class='changecolor' id="valorRSSI">
+            %RSSI%
+          </td> 
+          </tr>
+        </table>
+      </div>
+      </center>
+    </div>
+    <br><br>
+
+    <!--Logo pinguino-->
+    <img id="piplup" src="https://raw.githubusercontent.com/MicaelaGordillo/IOT_2/main/EjemploST_3/images/logo/piplup.png" alt="">
+    
+    <!--Pie de página-->
+    <footer>
+      @Copyright MYN 2022- All Right Reserved.
+    </footer>
+    <hr>
+    
+    <!-- Fotitos de los integrantes y su información -->
+    <center><h2>Integrantes:</h2></center>     
+    <div style="display: flex;">
+        <!-- Yamil -->
+        <div class="profile-card yamil" style="margin: 0 auto;">
+            <div class="img">
+                <img src="https://raw.githubusercontent.com/MicaelaGordillo/IOT_2/main/EjemploST_3/images/fotos/yamilPFP.jpeg">
+            </div>
+            <div class="caption">
+                <h3>Yamil Barrientos</h3>
+                <p>Estudiante</p>
+            </div>
+        </div>
+        <!-- Mica -->
+        <div class="profile-card mica" style="margin: 0 auto;">
+            <div class="img">
+                <img src="https://raw.githubusercontent.com/MicaelaGordillo/IOT_2/main/EjemploST_3/images/fotos/micaPFP.jpeg">
+            </div>
+            <div class="caption">
+                <h3>Micaela Gordillo</h3>
+                <p>Estudiante</p>
+            </div>
+        </div>
+        <!-- Nao -->
+        <div class="profile-card" style="margin: 0 auto;">
+            <div class="img">
+                <img src="https://raw.githubusercontent.com/MicaelaGordillo/IOT_2/main/EjemploST_3/images/fotos/IMG_20210715_162333.jpg">
+            </div>
+            <div class="caption">
+                <h3>Naomi Tacachira</h3>
+                <p>Estudiante</p>
+            </div>
+        </div>
+    </div>
+    <!-- Espacios -->
+    <br><br><br><br>
+
+    <script>
+      var hour = document.getElementById("hour");
+      var minute = document.getElementById("minute");
+      var seconds = document.getElementById("seconds");
+
+      var clock = setInterval(
+          function time(){
+            var date_now = new Date();
+            var hr = date_now.getHours();
+            var min = date_now.getMinutes();
+            var sec = date_now.getSeconds();
+            
+            if(hr < 10){
+                hr = "0" + hr;
+            } 
+            if(min < 10){
+                min = "0" + min;
+            } 
+            if(sec < 10){
+                sec = "0" + sec;
+            }
+
+            hour.textContent = hr;
+            minute.textContent = min;
+            seconds.textContent = sec;
+
+
+
+          },1000
+      );
+
+      var auxHorario1 = true;
+      function horario1(){
+          if(auxHorario1){
+              document.getElementById('#flagHorario1').value = 0;
+              auxHorario1 = false;
+          } else {
+              document.getElementById('#flagHorario1').value = 1;
+              auxHorario1 = true;
+          }
+      }
+      var auxHorario2 = true;
+      function horario2(){
+          if(auxHorario2){
+              document.getElementById('#flagHorario2').value = 0;
+              auxHorario2 = false;
+          } else {
+              document.getElementById('#flagHorario2').value = 1;
+              auxHorario2 = true;
+          }
+      }
+    </script>
+</body>
+</html>

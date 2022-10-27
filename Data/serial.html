@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>LAB 9 | Lamp</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="index.css">
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+  </head>
+  <body>
+    <!--Titulo y conexión WiFi-->
+    <header>
+      <img src="https://raw.githubusercontent.com/MicaelaGordillo/IOT_2/main/EjemploST_3/images/logo/myn.png" alt="logo">
+      <h1 style="z-index: 100; background-color:white;">LÁMPARA INTELIGENTE</h1>
+      <div id="contenedor" style="display: grid;position: absolute; top: 10px;right: 0; width: 200px;">
+        <img id="imgPotencia" src="" alt="">
+        <p id="valorPotencia">%RSSI%</p>
+      </div>
+    </header>
+    <div style="height: 120px;"></div>
+
+    <!--Menú de navegacion-->
+    <div class="menu_superior" style="margin: 0px 60px;">
+        <nav>
+            <ul>
+                <li class="izquierda"><a href="index.html">Control manual</a></li>
+                <li class="izquierda"><a href="serial.html">Modo control On/Off</a></li>
+                <li class="izquierda"><a href="reloj.html">Configuración de tiempo</a></li>
+            </ul>
+        </nav>
+        <hr>
+    </div>
+    <div style="height: 25px;"></div>
+
+    <!--Contenido-->
+    <div style="display:grid; gap: 40px;">
+      <div>
+        <center>
+          <h2>Control del Set_Point,</h2>
+          <form action="/SLIDER" method="post">
+            Slider:<br>
+            <input type="range" id="pwmInput" name="pwmValue" min="0" max="1023" value="500" onchange="updateTextInput(this.value, 'pwmInput', 'textInput')" >
+            <input type="number" id="textInput" onchange="updateTextInput(this.value, 'pwmInput', 'textInput')" value="500" style="width:50px">
+            <br><button type="submit" value="Submit">Enviar</button>
+          </form>
+        </center>
+      </div>
+      <!--Gráfica-->
+      <center><div style="min-width: 310px; max-width: 800px;">
+        <div id="sensor-LM35" class="container"></div>
+      </div></center>
+      <div style="display: grid; grid-template-columns: 45% 45%; gap: 10%; margin: 0px 10vw; margin-bottom: 50px;">
+        <div style="display: flex; justify-content: center; align-items: center;">
+            <img id="imagen-foco" src="https://raw.githubusercontent.com/MicaelaGordillo/images_IoT/main/intensidad_foco/intensidad5.png" alt="foco" width="60%">
+        </div>
+        <div style="display: flex; justify-content: center; align-items: center;">
+            <img id="imagen-ventilador" src="https://raw.githubusercontent.com/MicaelaGordillo/images_IoT/main/ventilador/ventilador.jpg" alt="ventilador" width="60%">
+        </div>
+      </div>
+    </div>
+    
+    <!--Tabla de información de la conexión-->
+    <div>
+        <center>
+        <h1>Información de la conexión</h1> 
+        <div style='width: 90vw; transition: 1s;' class='ampliacion'>
+        <table class="styled-table">
+          <thead>
+          <tr><th style=' padding: 20px;'>IP Local</th><th style=' padding: 20px; '>Host Name</th><th style=' padding: 20px; '>Status</th><th style=' padding: 20px; '>SSID</th><th style=' padding: 20px; '>PSK</th><th style=' padding: 20px; '>BSSID</th><th style=' padding: 20px; '>RSSI</th></tr>
+          </thead>
+          <tr>
+          <td style='padding: 20px;text-align: center;'class='changecolor'>
+            %IP%  
+          </td>
+          <td style='padding: 20px;text-align: center;'class='changecolor'>
+            %HOSTNAME%
+          </td>
+          <td style='padding: 20px;text-align: center;'class='changecolor'>
+            %STATUS%
+          </td>
+          <td style='padding: 20px;text-align: center;'class='changecolor'>
+            %SSID%
+          </td>
+          <td style='padding: 20px;text-align: center;'class='changecolor'>
+            %PSK% 
+          </td>
+          <td style='padding: 20px;text-align: center;'class='changecolor'>
+            %BSSID%  
+          </td>
+          <td style='padding: 20px;text-align: center;'class='changecolor' id="valorRSSI">
+            %RSSI%
+          </td> 
+          </tr>
+        </table>
+      </div>
+      </center>
+    </div>
+    <br><br>
+
+    <!--Logo pinguino-->
+    <img id="piplup" src="https://raw.githubusercontent.com/MicaelaGordillo/IOT_2/main/EjemploST_3/images/logo/piplup.png" alt="">
+    
+    <!--Pie de página-->
+    <footer>
+      @Copyright MYN 2022- All Right Reserved.
+    </footer>
+    <hr>
+    
+    <!-- Fotitos de los integrantes y su información -->
+    <center><h2>Integrantes:</h2></center>     
+    <div style="display: flex;">
+        <!-- Yamil -->
+        <div class="profile-card yamil" style="margin: 0 auto;">
+            <div class="img">
+                <img src="https://raw.githubusercontent.com/MicaelaGordillo/IOT_2/main/EjemploST_3/images/fotos/yamilPFP.jpeg">
+            </div>
+            <div class="caption">
+                <h3>Yamil Barrientos</h3>
+                <p>Estudiante</p>
+            </div>
+        </div>
+        <!-- Mica -->
+        <div class="profile-card mica" style="margin: 0 auto;">
+            <div class="img">
+                <img src="https://raw.githubusercontent.com/MicaelaGordillo/IOT_2/main/EjemploST_3/images/fotos/micaPFP.jpeg">
+            </div>
+            <div class="caption">
+                <h3>Micaela Gordillo</h3>
+                <p>Estudiante</p>
+            </div>
+        </div>
+        <!-- Nao -->
+        <div class="profile-card" style="margin: 0 auto;">
+            <div class="img">
+                <img src="https://raw.githubusercontent.com/MicaelaGordillo/IOT_2/main/EjemploST_3/images/fotos/IMG_20210715_162333.jpg">
+            </div>
+            <div class="caption">
+                <h3>Naomi Tacachira</h3>
+                <p>Estudiante</p>
+            </div>
+        </div>
+    </div>
+    <!-- Espacios -->
+    <br><br><br><br>
+    <script>
+      /*Gráfica para el sensor LM35*/
+      var sensorLM35 = new Highcharts.Chart({
+          chart:{ 
+              renderTo:'sensor-LM35' 
+          },
+          title: { 
+              text: 'Sensor LM35' 
+          },
+          series: [{
+            showInLegend: false,
+            data: []
+          }],
+          plotOptions: {
+            line: { animation: false,
+              dataLabels: { enabled: true }
+            },
+            series: { color: '#18009c' }
+          },
+          xAxis: {
+            type: 'datetime',
+            dateTimeLabelFormats: { second:'%S' }
+          },
+          yAxis: {
+            title: { text: 'Datos del Sensor LM35' }
+          },
+          credits: { enabled: false }
+      });
+      /*Función para pedir el valor del sensor LM35 cada 1 segundo*/
+      setInterval(function () {
+          var xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function() {
+              if (this.readyState == 4 && this.status == 200) {
+                  var x = (new Date()).getTime(), y = parseFloat(this.responseText);
+                  if(sensorLM35.series[0].data.length > 40) {
+                      sensorLM35.series[0].addPoint([x, y], true, true, true);
+                  } else {
+                      sensorLM35.series[0].addPoint([x, y], true, false, true);
+                  }
+              }
+          };
+          xhttp.open("GET", "/SensorLM35", true);
+          xhttp.send();
+      }, 1000 );
+      function updateTextInput(val, pwmInput, textInput) {
+        document.getElementById(pwmInput).value = val; 
+        document.getElementById(textInput).value = val; 
+      }
+    </script>
+</body>
+</html>
