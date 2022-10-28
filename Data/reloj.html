@@ -41,29 +41,28 @@
       <span>:</span>
       <div id="seconds">00</div>
     </div>
-    <div id="contenedor_horario1" style="display: inline-grid; margin-right: 20px; margin-bottom: 50px;">
-        <label for="horaEncendido1">Hora de encendido</label><br>
-        <input type="number" id="horaEncendido1" name="horaEncendido1" min="0" max="23" value="18">&nbsp:
-        <input type="number" id="minutoEncendido1" name="minutoEncendido1" min="0" max="60" value="30">
-        <br><label for="horaApagado1">Hora de apagado</label><br>
-        <input type="number" id="horaApagado1" name="horaApagado1" min="0" max="23" value="7">&nbsp:
-        <input type="number" id="minutoApagado1" name="minutoApagado1" min="0" max="59" value="30">
-        <input type="number" id="flagHorario1" name="flagHorario1" min="0" max="10" value="1" style="display: none;"><br>
-        <br><button id="establecerHorario1" value="Submit" onclick="horario1()">Establecer horario ventilador</button>
-    </div>
-    <div id="contenedor_horario2" style="display: inline-grid; margin-left: 20px; margin-bottom: 60px;">
-      
-        <label for="horaEncendido2">Hora de encendido</label><br>
-        <input type="number" id="horaEncendido2" name="horaEncendido2" min="0" max="23" value="18">&nbsp:
-        <input type="number" id="minutoEncendido2" name="minutoEncendido2" min="0" max="60" value="30">
-        <br><label for="horaApagado">Hora de apagado</label><br>
-        <input type="number" id="horaApagado2" name="horaApagado2" min="0" max="23" value="7">&nbsp:
-        <input type="number" id="minutoApagado2" name="minutoApagado2" min="0" max="59" value="30">
-        <input type="number" id="flagHorario2" name="flagHorario2" min="0" max="10" value="1" style="display: none;"><br>
-        <br><button id="establecerHorario2" value="Submit" onclick="horario2()">Establecer horario foco</button>
-
-    </div>
-    
+    <div style="display: grid; grid-template-columns: 50% 50%;  margin: 0px 10vw; margin-bottom: 50px;">
+      <div id="contenedor_horario1">
+          <label for="horaEncendido1">Hora de encendido</label><br>
+          <input type="number" id="horaEncendido1" name="horaEncendido1" min="0" max="23" value="18">&nbsp:
+          <input type="number" id="minutoEncendido1" name="minutoEncendido1" min="0" max="60" value="30">
+          <br><label for="horaApagado1">Hora de apagado</label><br>
+          <input type="number" id="horaApagado1" name="horaApagado1" min="0" max="23" value="7">&nbsp:
+          <input type="number" id="minutoApagado1" name="minutoApagado1" min="0" max="59" value="30">
+          <input type="number" id="flagHorario1" name="flagHorario1" min="0" max="10" value="1" style="display: none;"><br>
+          <br><button id="establecerHorario1" value="Submit" onclick="horario1()">Establecer horario ventilador</button>
+      </div>
+      <div id="contenedor_horario2" >
+          <label for="horaEncendido2">Hora de encendido</label><br>
+          <input type="number" id="horaEncendido2" name="horaEncendido2" min="0" max="23" value="18">&nbsp:
+          <input type="number" id="minutoEncendido2" name="minutoEncendido2" min="0" max="60" value="30">
+          <br><label for="horaApagado">Hora de apagado</label><br>
+          <input type="number" id="horaApagado2" name="horaApagado2" min="0" max="23" value="7">&nbsp:
+          <input type="number" id="minutoApagado2" name="minutoApagado2" min="0" max="59" value="30">
+          <input type="number" id="flagHorario2" name="flagHorario2" min="0" max="10" value="1" style="display: none;"><br>
+          <br><button id="establecerHorario2" value="Submit" onclick="horario2()">Establecer horario foco</button>
+      </div>
+  </div>
     <!--Tabla de información de la conexión-->
     <div>
         <center>
@@ -174,7 +173,10 @@
         minute.textContent = min;
         seconds.textContent = sec;
       }, 1000);
-
+      var aux1 = 0;
+      var aux2 = 0;
+      var aux3 = 0;
+      var aux4 = 0;
       function horario1() {
         // Recolectamos datos
         var h1 = document.getElementById("horaEncendido1").value;
@@ -213,23 +215,30 @@
         if (milis2 < 0) {
           milis2 = 86400000; //Si la hora establecida de apagdo ya pasó, se aplica desde el siguiente dia (86400000 = 24h)
         }
-        if (milis1 < milis2) {
-          milis2 += 86400000;
-        }
+        // if (milis1 < milis2) {
+        //   milis2 += 86400000;
+        // }
 
         //Establecemos los temporizadores para mandar señales al ESP32 en el momento en el que el foco deba cambiar de estado
         setInterval(function () {
-          var xhttp = new XMLHttpRequest();
-          xhttp.open("GET", "/VentiladorEstado1", true);
-          xhttp.send();
-          console.log("temp1");
+          if(aux1==0){
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("GET", "/VentiladorEstado1", true);
+            xhttp.send();
+            console.log("v1");
+          }
+          aux1++;
         }, milis1);
 
         setInterval(function () {
-          var xhttp = new XMLHttpRequest();
-          xhttp.open("GET", "/VentiladorEstado0", true);
-          xhttp.send();
-          console.log("temp2");
+          if(aux2==0){
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("GET", "/VentiladorEstado0", true);
+            xhttp.send();
+            console.log("v2");
+          }
+          aux2++;
+          
         }, milis2);
 
         console.log("Se establecieron los temporizadores");
@@ -273,23 +282,29 @@
         if (milis2 < 0) {
           milis2 = 86400000; //Si la hora establecida de apagdo ya pasó, se aplica desde el siguiente dia (86400000 = 24h)
         }
-        if (milis1 < milis2) {
-          milis2 += 86400000;
-        }
+        // if (milis1 < milis2) {
+        //   milis2 += 86400000;
+        // }
 
         //Establecemos los temporizadores para mandar señales al ESP32 en el momento en el que el foco deba cambiar de estado
         setInterval(function () {
-          var xhttp = new XMLHttpRequest();
-          xhttp.open("GET", "/FocoEstado1", true);
-          xhttp.send();
-          console.log("temp1");
+          if(aux3==0){
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("GET", "/FocoEstado1", true);
+            xhttp.send();
+            console.log("f1");
+          }
+          aux3++;
         }, milis1);
 
         setInterval(function () {
-          var xhttp = new XMLHttpRequest();
-          xhttp.open("GET", "/FocoEstado0", true);
-          xhttp.send();
-          console.log("temp2");
+          if(aux4==0){
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("GET", "/FocoEstado0", true);
+            xhttp.send();
+            console.log("f2");
+          }
+          aux4++;
         }, milis2);
 
         console.log("Se establecieron los temporizadores - Focos");
