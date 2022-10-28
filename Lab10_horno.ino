@@ -23,22 +23,18 @@ int setPoint = 22;
 int Sup;
 int Inf;
 
-
 String pwmValue;
 
-int page = 0;
 AsyncWebServer server(80);
 
-String getRSSI(){
-  return String(WiFi.RSSI());
-}
+int estadoFoco = 1;
+int estadoVentilador = 1;
+
 void setup() {
   Serial.begin(115200);
   DS18B20.begin();      // initializando el sensor DS18B20
   pinMode(Vent,OUTPUT);
   pinMode(Foco,OUTPUT);
-  digitalWrite(Foco, LOW);
-  digitalWrite(Vent, LOW);
 
   // Iniciamos  SPIFFS
   if (!SPIFFS.begin())
@@ -60,49 +56,68 @@ void setup() {
   Serial.println(WiFi.localIP());
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/index.html",String(), false, datos);
+    request->send(SPIFFS, "/index.html",String(), false);
   });
 
   server.on("/index.html", HTTP_GET, [](AsyncWebServerRequest * request) {
-    page = 0;
     request->send(SPIFFS, "/index.html", String(), false);
   });
   
-  server.on("/serial.html", HTTP_GET, [](AsyncWebServerRequest * request) {
-    page = 1;
-    request->send(SPIFFS, "/serial.html", String(), false, datos);
+  server.on("/sensor.html", HTTP_GET, [](AsyncWebServerRequest * request) {
+    request->send(SPIFFS, "/sensor.html", String(), false);
   });
 
   server.on("/reloj.html", HTTP_GET, [](AsyncWebServerRequest * request) {
-    page = 2;
-    request->send(SPIFFS, "/reloj.html", String(), false, datos);
+    request->send(SPIFFS, "/reloj.html", String(), false);
   });
 
   server.on("/index.css", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/index.css", "text/css");
   });
   
+  server.on("/IP", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", String(WiFi.localIP()).c_str());
+  });
+  server.on("/HOSTNAME", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", String(WiFi.getHostname()).c_str());
+  });
+  server.on("/STATUS", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", String(WiFi.status()).c_str());
+  });
+  server.on("/SSID", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", String(WiFi.SSID()).c_str());
+  });
+  server.on("/PSK", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", String(WiFi.psk()).c_str());
+  });
+  server.on("/BSSID", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", String(WiFi.BSSIDstr()).c_str());
+  });
   server.on("/RSSI", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/plain",getRSSI().c_str());
+    request->send_P(200, "text/plain", String(WiFi.RSSI()).c_str());
   });
 
   //Encendido y apagado foco
   server.on("/FocoEstado0", HTTP_GET, [](AsyncWebServerRequest *request){
-    Serial.println("Estado foco: encendido\t");
-    digitalWrite(Foco, HIGH);
-  });
-  server.on("/FocoEstado1", HTTP_GET, [](AsyncWebServerRequest *request){
     Serial.println("Estado foco: apagado\t");
     digitalWrite(Foco, LOW);
+    estadoFoco = 0;
+  });
+  server.on("/FocoEstado1", HTTP_GET, [](AsyncWebServerRequest *request){
+    Serial.println("Estado foco: encendido\t");
+    digitalWrite(Foco, HIGH);
+    estadoFoco = 1;
   });
   //Encendido y apagado foco
   server.on("/VentiladorEstado0", HTTP_GET, [](AsyncWebServerRequest *request){
-    Serial.println("Estado ventilador: encendido\t");
-    digitalWrite(Vent, HIGH);
-  });
-  server.on("/VentiladorEstado1", HTTP_GET, [](AsyncWebServerRequest *request){
     Serial.println("Estado ventilador: apagado\t");
     digitalWrite(Vent, LOW);
+    estadoVentilador = 0;
+  });
+  server.on("/VentiladorEstado1", HTTP_GET, [](AsyncWebServerRequest *request){
+    Serial.println("Estado ventilador: encendido\t");
+    digitalWrite(Vent, HIGH);
+    estadoVentilador = 1;
   });
 
   //Segunda pestaña
@@ -114,35 +129,29 @@ void setup() {
     if (T < setPoint) {
       digitalWrite(Foco, HIGH);
       digitalWrite(Vent, LOW);
+      estadoFoco = 1;
+      estadoVentilador = 0;
     }
     else {
       digitalWrite(Foco, LOW);
       digitalWrite(Vent, HIGH);
+      estadoFoco = 0;
+      estadoVentilador = 1;
     }
-    request->send(SPIFFS, "/serial.html", String(), false, datos);
+    request->send(SPIFFS, "/sensor.html", String(), false);
   });
 
-  //Segunda pestaña
   server.on("/SensorLM35", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", String(T).c_str());
   });
+  server.on("/GraficaFoco", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", String(estadoFoco).c_str());
+  });
+  server.on("/GraficaVentilador", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", String(estadoVentilador).c_str());
+  });
   
   server.begin();
-}
-
-String datos(const String& var) {
-  if (var == "IP") {
-    return WiFi.localIP().toString();
-  }else if (var == "HOSTNAME") {
-    return String(WiFi.SSID());
-  }else if (var == "STATUS") {
-    return String(WiFi.status());
-  }else if (var == "PSK") {
-    return String(WiFi.psk());
-  }else if (var == "RSSI") {
-    return String(WiFi.RSSI());
-  }
-  return var;
 }
 
 void loop() {
@@ -150,6 +159,5 @@ void loop() {
   T = DS18B20.getTempCByIndex(0);  // lectura de temperatura en °C
   Serial.print("Temperature: ");
   Serial.println(T);                // imprimiendo temperatura en °C
-  
   delay(500);
 }

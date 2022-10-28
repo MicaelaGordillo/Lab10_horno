@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>LAB 9 | Lamp</title>
+    <title>LAB 10 | Horno</title>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="icon.png">
@@ -25,7 +25,7 @@
         <nav>
             <ul>
                 <li class="izquierda"><a href="index.html">Control manual</a></li>
-                <li class="izquierda"><a href="serial.html">Modo control On/Off</a></li>
+                <li class="izquierda"><a href="sensor.html">Modo control On/Off</a></li>
                 <li class="izquierda"><a href="reloj.html">Configuración de tiempo</a></li>
             </ul>
         </nav>
@@ -312,4 +312,92 @@
       }
     </script>
 </body>
+<script>
+  /*Función para cambiar la imagen en base a la conexión WiFi*/
+  function actualizarPotencia(){
+      var valor = parseInt(document.getElementById("valorPotencia").innerText);
+      if (valor >= (-40)) {
+          document.getElementById("imgPotencia").src = "https://raw.githubusercontent.com/MicaelaGordillo/images_IoT/main/intensidad_wifi/wifi4.png";
+      } else if (valor <(-40) && valor >= (-50)) {
+          document.getElementById("imgPotencia").src = "https://raw.githubusercontent.com/MicaelaGordillo/images_IoT/main/intensidad_wifi/wifi3.png";
+      } else if (valor < (-50) && valor >= (-60)){
+          document.getElementById("imgPotencia").src = "https://raw.githubusercontent.com/MicaelaGordillo/images_IoT/main/intensidad_wifi/wifi2.png";
+      } else if (valor < (-60)){
+          document.getElementById("imgPotencia").src = "https://raw.githubusercontent.com/MicaelaGordillo/images_IoT/main/intensidad_wifi/wifi1.png";
+      }
+  }
+  /*Función para pedir el valor de la conexión WiFi - cada 10 segundos*/
+  setInterval(function ( ) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+              document.getElementById("valorIP").innerText = this.responseText;
+          }
+      };
+      xhttp.open("GET", "/IP", true);
+      xhttp.send();
+  }, 10000);
+  setInterval(function ( ) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+              document.getElementById("valorHOSTNAME").innerText = this.responseText;
+          }
+      };
+      xhttp.open("GET", "/HOSTNAME", true);
+      xhttp.send();
+  }, 10000);
+  setInterval(function ( ) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+              document.getElementById("valorSTATUS").innerText = this.responseText;
+          }
+      };
+      xhttp.open("GET", "/STATUS", true);
+      xhttp.send();
+  }, 10000);
+  setInterval(function ( ) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+              document.getElementById("valorSSID").innerText = this.responseText;
+          }
+      };
+      xhttp.open("GET", "/SSID", true);
+      xhttp.send();
+  }, 10000);
+  setInterval(function ( ) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+              document.getElementById("valorPSK").innerText = this.responseText;
+          }
+      };
+      xhttp.open("GET", "/PSK", true);
+      xhttp.send();
+  }, 10000);
+  setInterval(function ( ) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+              document.getElementById("valorBSSID").innerText = this.responseText;
+          }
+      };
+      xhttp.open("GET", "/BSSID", true);
+      xhttp.send();
+  }, 10000);
+  setInterval(function ( ) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+              document.getElementById("valorPotencia").innerText = this.responseText;
+              document.getElementById("valorRSSI").innerText = this.responseText;
+              actualizarPotencia();
+          }
+      };
+      xhttp.open("GET", "/RSSI", true);
+      xhttp.send();
+  }, 10000);
+</script>
 </html>
